@@ -1,126 +1,80 @@
 # slax-efi
-EFI configuration for slax
+Configuración EFI para slax.
+Se utiliza syslinux-efi y una particion fat de un dispositivo con mbr.
+la memoria a preparar debe de estar siendo reconocida como "sda" en su sistema, fijese que hace, no me puedo hacer responsable, esta responsabilidad cae en la persona que hace uso de esto.
+El dispositivo reconocido como "sda" sera formateado
 
-## Preparation
+## Preparación
+Puede hacerlo de manera manual, la cual es sencilla y segura :
 
-Download slax from https://slax.org
-I've tested this with http://ftp.sh.cvut.cz/slax/Slax-9.x/slax-64bit-9.9.1.iso
-
-## Usage
-Either copy the contents of EFI to your thumb drive or boot slax and copy the files from Debian yourself.
-
-~~~bash
-thumbdrive=/dev/sdb
-d=`mktemp -d`
-cd $d
-wget http://ftp.sh.cvut.cz/slax/Slax-9.x/slax-64bit-9.9.1.iso
-test -f slax-64bit-9.9.1.iso
-apt install -y parted syslinux-common syslinux-efi
-dd if=/dev/zero of=${thumbdrive} bs=1M count=5
-sync
-/sbin/parted ${thumbdrive} mklabel msdos --script
-/sbin/parted ${thumbdrive} mkpart primary 0% 100% --script
-mkfs.vfat ${thumbdrive}1
-mkdir /media/{source,target}
-mount -o loop -t iso9660 slax-64bit-9.9.1.iso /media/source
-mount -t vfat ${thumbdrive}1 /media/target
-cp -axv /media/source/slax /media/target/slax
-bash -x /media/target/slax/boot/bootinst.sh
-mkdir -p /media/target/EFI/Boot/
-cp /usr/lib/SYSLINUX.EFI/efi64/syslinux.efi /media/target/EFI/Boot/bootx64.efi
-cd /usr/lib/syslinux/modules/efi64/
-cp ldlinux.e64 menu.c32 libcom32.c32 libutil.c32 vesamenu.c32 /media/target/EFI/Boot
-cat > /media/target/EFI/Boot/syslinux.cfg <<"SYSLINUXCFG"
-TIMEOUT 30
-ONTIMEOUT slax
+Descargue slax de https://slax.org
+A partir de descargar su archivo .iso ,descomprima, lea el contenido del archivo "readme.txt", realice lo que se le indica, si tiene problemas busque y/o use un traductor, recomiendo deepl https://www.deepl.com/translator.
+instale los programas: syslinux-common syslinux-efi
+abra la terminal, busquela entre sus aplicaciones o con las teclas "ctrl + alt + t".
+en esta, si utiliza debian/ubuntu.. copie y con el raton seleccione "pegar": sudo apt install --yes syslinux-common syslinux-efi
+despues:
+mkdir -p /DIRECTORIO/DEL/DISPOSITIVO/EFI/Boot/
+cp /usr/lib/SYSLINUX.EFI/efi64/syslinux.efi /directorio/del/dispositivo/EFI/Boot/bootx64.efi
+cd /usr/lib/syslinux/modules/efi64/"
+cp ldlinux.e64 menu.c32 libcom32.c32 libutil.c32 vesamenu.c32 /directorio/del/dispositivo/EFI/Boot
+Cree en el directorio /EFI/boot de su dispositivo a preparar, un archivo llamado "syslinux.cfg"
+Y  ponga de contenido:
+"
+PROMPT 0
+TIMEOUT 40
 
 UI vesamenu.c32
 MENU TITLE Boot (EFI)
 
-LABEL slax
-      MENU LABEL Run Slax (Persistent changes)
-      LINUX /slax/boot/vmlinuz
-      INITRD /slax/boot/initrfs.img
-      APPEND vga=normal load_ramdisk=1 prompt_ramdisk=0 rw printk.time=0 slax.flags=perch,automount
-SYSLINUXCFG
-~~~
+MENU CLEAR
+MENU HIDDEN
+MENU HIDDENKEY Enter default
+MENU BACKGROUND /slax/boot/bootlogo.png
 
-> **Please Note (1):**
-> *efibootmgr* can only configure EFI boot entries when you have already booted from EFI. 
-> Because of that, the boot files have to reside in hardcoded directories according to UEFI standard.
-> One possibility is `/EFI/Boot`
+MENU WIDTH 80
+MENU MARGIN 20
+MENU ROWS 5
+MENU TABMSGROW 9
+MENU CMDLINEROW 9
+MENU HSHIFT 0
+MENU VSHIFT 19
 
-> **Please Note (2):**
-> It suffices to format your thumb drive with fat32. No need to change the partition type to EF.
+MENU COLOR BORDER  30;40      #00000000 #00000000 none
+MENU COLOR SEL     47;30      #FF000000 #FFFFFFFF none
+MENU COLOR UNSEL   37;40      #FFFFFFFF #FF000000 none
+MENU COLOR TABMSG  32;40      #FF60CA00 #FF000000 none
 
-> **Please Note (3):**
-> The thumb drive uses regular MBR partitioning!
+F1 /slax/boot/help.txt /slax/boot/zblack.png
 
-## Files on Thumbdrive
+MENU AUTOBOOT Press Esc for options, automatic boot in # second{,s} ...
+MENU TABMSG [F1] help     
 
-Thumbdrive should now have the following files:
-~~~
-# find /media/target/
-/media/target/
-/media/target/slax
-/media/target/slax/01-core.sb
-/media/target/slax/01-firmware.sb
-/media/target/slax/02-xorg.sb
-/media/target/slax/03-desktop.sb
-/media/target/slax/04-apps.sb
-/media/target/slax/05-chromium.sb
-/media/target/slax/changes
-/media/target/slax/boot
-/media/target/slax/boot/bootinst.bat
-/media/target/slax/boot/bootinst.sh
-/media/target/slax/boot/bootlogo.png
-/media/target/slax/boot/extlinux.x32
-/media/target/slax/boot/extlinux.x64
-/media/target/slax/boot/help.txt
-/media/target/slax/boot/initrfs.img
-/media/target/slax/boot/isolinux.bin
-/media/target/slax/boot/isolinux.boot
-/media/target/slax/boot/ldlinux.c32
-/media/target/slax/boot/libcom32.c32
-/media/target/slax/boot/libutil.c32
-/media/target/slax/boot/mbr.bin
-/media/target/slax/boot/pxelinux.0
-/media/target/slax/boot/runadmin.vbs
-/media/target/slax/boot/samedisk.vbs
-/media/target/slax/boot/syslinux.cfg
-/media/target/slax/boot/syslinux.com
-/media/target/slax/boot/syslinux.exe
-/media/target/slax/boot/vesamenu.c32
-/media/target/slax/boot/vmlinuz
-/media/target/slax/boot/zblack.png
-/media/target/slax/boot/ldlinux.sys
-/media/target/slax/modules
-/media/target/EFI
-/media/target/EFI/Boot
-/media/target/EFI/Boot/bootx64.efi
-/media/target/EFI/Boot/ldlinux.e64
-/media/target/EFI/Boot/menu.c32
-/media/target/EFI/Boot/libcom32.c32
-/media/target/EFI/Boot/libutil.c32
-/media/target/EFI/Boot/vesamenu.c32
-/media/target/EFI/Boot/syslinux.cfg
-~~~
+LABEL default
+MENU LABEL Run Slax (Persistent changes)
+KERNEL /slax/boot/vmlinuz
+APPEND vga=normal initrd=/slax/boot/initrfs.img load_ramdisk=1 prompt_ramdisk=0 rw printk.time=0 consoleblank=0 slax.flags=perch,automount
 
-## Did it work?
+LABEL perch
+MENU LABEL Run Slax (Fresh start)
+KERNEL /slax/boot/vmlinuz
+APPEND vga=normal initrd=/slax/boot/initrfs.img load_ramdisk=1 prompt_ramdisk=0 rw printk.time=0 consoleblank=0 slax.flags=automount
 
-Boot from the thumbdrive using EFI and check whether it worked with:
+LABEL toram
+MENU LABEL Run Slax (Copy to RAM)
+KERNEL /slax/boot/vmlinuz
+APPEND vga=normal initrd=/slax/boot/initrfs.img load_ramdisk=1 prompt_ramdisk=0 rw printk.time=0 consoleblank=0 slax.flags=toram
+"
+...
 
-~~~
-# ls -l /sys/firmware/efi/
-total 0
--r--r--r--  1 root root 4096 Feb 24 21:03 config_table
-drwxr-xr-x  2 root root    0 Feb 24  2020 efivars
--r--r--r--  1 root root 4096 Feb 24 21:03 fw_platform_size
--r--r--r--  1 root root 4096 Feb 24 21:03 fw_vendor
--r--r--r--  1 root root 4096 Feb 24 21:03 runtime
-drwxr-xr-x  6 root root    0 Feb 24 21:03 runtime-map
--r--------  1 root root 4096 Feb 24 21:03 systab
-drwxr-xr-x 27 root root    0 Feb 24  2020 vars
-~~~
+O puede hacerlo todo automatico, lo cual no es muy recomendable pero comodo...
 
-This directory only exists, when booting in EFI mode.
+si sabe lo que hace, esta seguro de todo, descarge el archivo "slax-efi.sh".
+ejecutelo..
+y espere..
+con eso ya estaria todo..
+
+---------------------------------
+
+bueno gracias por todo, espero no hallan problemas, inconvenientes...
+no haber molestado, estoy iniciando aqui, sin experiencia...
+solo queria dar algunos aportes...
