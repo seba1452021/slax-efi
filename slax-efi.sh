@@ -21,7 +21,7 @@ export ${VARS}
 clear
 echo -e "\n opteniendo y/o actualizando dependencias.. \n"
 
-apt install -y -f parted p7zip{,-full} wget efibootmgr &>/dev/null
+apt install -y -f parted p7zip{,-full} wget efibootmgr syslinux-common &>/dev/null
 
 clear
 echo -e "\n descargando y comprobando archivos.. \n"
@@ -72,7 +72,8 @@ cp /usr/lib/shim/fbx64.efi .
 if [ ${TYPE} == "vfat" ]; then
 parted -s ${DEV} set ${NUM} boot on
 else
-echo -e "UI /EFI/${boot}/menu.c32\nprompt 0\ntimeout 0\ndefault new_config\nLABEL new_config\nKERNEL /EFI/${boot}/vesamenu.c32\nAPPEND root=UUID=${UUID}" | tee -a syslinux1.cfg &>/dev/null
+cp /usr/lib/syslinux/modules/efi64/chain.c32 .
+echo -e "UI /EFI/${boot}/menu.c32 \nPROMPT 0 \nTIMEOUT 0 \nDEFAILT NEW_CONFIG \nLABEL NEW_CONFIG \nCOM32 /EFI/${boot}/chain.c32 \nAPPEND GUID=${UUID}" | tee -a syslinux1.cfg &>/dev/null
 fi
 
 cd $directory
