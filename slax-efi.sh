@@ -1,85 +1,60 @@
 #!/bin/bash
-thumbdrive=/dev/sda
-d=`mktemp -d`
-cd $d
-wget https://ftp.sh.cvut.cz/slax/Slax-9.x/slax-64bit-9.11.0.iso -o slax-64bit.iso
-wget https://download.plop.at/plopkexec/plopkexec-1.6-bin.tar.gz -o plopkexec.tar.gz
-wget https://mirrors.edge.kernel.org/pub/linux/utils/boot/syslinux/syslinux-6.03.tar.gz -o syslinux.tar.gz
-apt install -y parted syslinux-common syslinux-efi p7zip-full unp
-dd if=/dev/zero of=${thumbdrive} bs=1M count=5
-sync
-/sbin/parted ${thumbdrive} mklabel msdos --script
-/sbin/parted ${thumbdrive} mkpart primary 0% 100% --script
-mkfs.vfat ${thumbdrive}1
-mkdir /media/target
-7z x slax-64bit.iso
-unp plopkexec.tar.gz syslinux.tar.gz
-mount -t vfat ${thumbdrive}1 /media/target
-mv slax /media/target/
-mkdir -p /media/target/EFI/Boot/
-mv plopkexec/plopkexec64 /media/target/EFI/Boot/
-mv syslinux/efi64/com32/elflink/ldlinux/ldlinux.e64 /media/target/EFI/Boot/
-mv syslinux/efi64/com32/lib/libcom32.c32 /media/target/EFI/Boot/
-mv syslinux/efi64/com32/libutil/libutil.c32 /media/target/EFI/Boot/
-mv syslinux/efi64/com32/menu/{menu.c32,vesamenu.c32} /media/target/EFI/Boot/
-mv syslinux/efi64/com32/modules/{poweroff.c32,reboot.c32} /media/target/EFI/Boot/
-cp /usr/lib/SYSLINUX.EFI/efi64/syslinux.efi /media/target/EFI/Boot/bootx64.efi
-bash -x /media/target/slax/boot/bootinst.sh
-cat > /media/target/EFI/Boot/syslinux.cfg <<"SYSLINUXCFG"
-PROMPT 0
-TIMEOUT 40
+shopt -s extglob
 
-UI vesamenu.c32
-MENU TITLE Boot (EFI)
+dir="$(dirname "$0")"
+cd $dir
 
-MENU CLEAR
-MENU HIDDEN
-MENU HIDDENKEY Enter default
-MENU BACKGROUND /slax/boot/bootlogo.png
+directory=$(pwd)
 
-MENU WIDTH 80
-MENU MARGIN 20
-MENU ROWS 5
-MENU TABMSGROW 9
-MENU CMDLINEROW 9
-MENU HSHIFT 0
-MENU VSHIFT 19
+yes n | rm -r -f -i !(${0}|autorun.inf|logo.ico) &>/dev/null
+case $? in 1) ;; 0) echo -e "existen cosas aparte de este script. \n \n ¿desea superponer? S/N \n \n" && read -n 2 resp KEY && sleep 2 && clear ;; esac
+case $resp in "s"|"S"|"y"|"Y") boot=syslinux ;; *) boot=BOOT ;; esac
 
-MENU COLOR BORDER  30;40      #00000000 #00000000 none
-MENU COLOR SEL     47;30      #FF000000 #FFFFFFFF none
-MENU COLOR UNSEL   37;40      #FFFFFFFF #FF000000 none
-MENU COLOR TABMSG  32;40      #FF60CA00 #FF000000 none
 
-F1 /slax/boot/help.txt /slax/boot/zblack.png
+PART="$(df . | tail -n 1 | tr -s " " | cut -d " " -f 1)"
+DEV="$(echo "$PART" | sed -r "s:[0-9]+\$::" | sed -r "s:([0-9])[a-z]+\$:\\1:i")"   #"
+NUM="$(echo $PART | sed -e "s|"$DEV"||g" -e "s|"[a-z]"||g")"
+VARS=`blkid ${PART} | sed -e "s|${PART}:||g" | sed -e 's|"||g'`
+export ${VARS}
 
-MENU AUTOBOOT Press Esc for options, automatic boot in # second{,s} ...
-MENU TABMSG [F1] help     
+apt install -y -f parted p7zip{,-full} wget efibootmgr &>/dev/null
 
-LABEL default
-MENU LABEL Run Slax (Persistent changes)
-KERNEL /slax/boot/vmlinuz
-APPEND vga=normal initrd=/slax/boot/initrfs.img load_ramdisk=1 prompt_ramdisk=0 rw printk.time=0 consoleblank=0 slax.flags=perch,automount
+i=1
+until [ $i -eq 0 ]
+do
+if [ -f slax-64bit-11.3.0.iso ]; then rm slax-64bit-11.3.0.iso; fi
+test -f slax-64bit-11.3.0.iso || wget https://ftp.sh.cvut.cz/slax/Slax-11.x/slax-64bit-11.3.0.iso &>/dev/null
+test -f md5.txt || echo '9d94c1796ba4c79fb05bb9f35c3fe188  slax-64bit-11.3.0.iso' > md5.txt
+md5sum -c md5.txt &>/dev/null
+i=$?
+done
 
-LABEL perch
-MENU LABEL Run Slax (Fresh start)
-KERNEL /slax/boot/vmlinuz
-APPEND vga=normal initrd=/slax/boot/initrfs.img load_ramdisk=1 prompt_ramdisk=0 rw printk.time=0 consoleblank=0 slax.flags=automount
+7z x slax-64bit-11.3.0.iso &>/dev/null
 
-LABEL toram
-MENU LABEL Run Slax (Copy to RAM)
-KERNEL /slax/boot/vmlinuz
-APPEND vga=normal initrd=/slax/boot/initrfs.img load_ramdisk=1 prompt_ramdisk=0 rw printk.time=0 consoleblank=0 slax.flags=toram
+mkdir boot -p EFI/${boot}
 
-LABEL poweroff
-MENU LABEL Power Off
-COM32 poweroff.c32
+mv slax/boot/EFI/Boot/!(bootx64.efi) EFI/${boot}/
+mv slax/boot/{help.txt,initrfs.img,vmlinuz,*.png} boot/
+rm readme.txt slax-64bit-11.3.0.iso md5.txt -r slax/boot '[BOOT]'
 
-LABEL reboot
-MENU LABEL Reboot
-COM32 reboot.c32
+cd EFI/${boot}/
 
-LABEL plopkexec
-kernel plopkexec64
-append quiet
+wget https://blog.hansenpartnership.com/wp-uploads/2013/{PreLoader,HashTool}.efi &>/dev/null
+mv PreLoader.efi ./BOOTx64.EFI
+mv syslinux.efi ./loader.efi
 
-SYSLINUXCFG
+sed -i "s|/slax||g" syslinux.cfg
+sed -i "s|help.txt|/boot/help.txt|g" syslinux.cfg
+sed -i "s|vesamenu.c32|/EFI/${boot}/vesamenu.c32\nMENU TITLE Boot (EFI)|g" syslinux.cfg
+
+if [ ${TYPE} == "vfat" ]; then
+parted -s ${DEV} set ${NUM} boot on
+else
+echo -e "UI /EFI/${boot}/menu.c32\nprompt 0\ntimeout 0\ndefault new_config\nLABEL new_config\nKERNEL /EFI/${boot}/vesamenu.c32\nAPPEND root=UUID=${UUID}" | tee -a syslinux1.cfg &>/dev/null
+fi
+
+cd $directory
+
+if [ -d EFI/syslinux/ ]; then echo "BOOTx64.EFI,${boot},,This is the boot entry for syslinux" | tee -a BOOTX64.CSV &>/dev/null && cp /usr/lib/shim/fbx64.efi EFI/syslinux/ && efibootmgr --verbose --disk ${DEV} --part ${NUM} --create --label "Syslinux" --loader /EFI/${boot}/BOOTx64.EFI &>/dev/null; fi
+
+exit 0
