@@ -7,8 +7,14 @@ Fijese que realiza, sea lo proporcionado y/o lo que esta haciendo, no me puedo h
 ## Preparación
 Puede hacer todo de la siguente manera, la cual es sencilla y segura :
 
-Descargue el script.
-Muevalo a la raiz de la memoria que quiera preparar y ejecute como usuario root o con el comando "sudo" por adelante.
+Descargue el script ( tambien puede sumar “autorun.inf”, “logo.ico” y “readme” ).
+
+. script [slax-efi.sh], el programa.
+. readme, el archivo que esta leyendo, el manual <no es necesaria su descarga>
+.  autorun.inf & logo.ico, se encargan de hacer que la memoria tenga una etiqueta [nombre] e icono [imagen],
+   deberian estar juntos estos dos archivos <no es necesaria la descarga de estos>
+   
+Mueva lo descargado a la "raiz" (primera carpeta..) de la memoria que quiera preparar y ejecute como usuario root o con el comando "sudo" por adelante.
 La memoria en cuestion deberia estar en formato "fat"/"vfat"/"fat32"..
 
 < nombre de un usuario> @ < nombre para el equipo, ejemplo debian > : < directorio > $ < $ para cualquier usuario; # para root >
@@ -40,18 +46,5 @@ si es caso se nesecita de una particion con fat de esa memoria u otra y debe de 
 para lo relacionado con arranque, todo sobre “UEFI” & “secure boot” puede en su mayoria sale de la info. encontrada en:
 
 https://www.rodsbooks.com/refind/secureboot.html
-https://blog.hansenpartnership.com/linux-foundation-secure-boot-system-released/
-
-no es una solucion difinitiva, sino que es una previsoria. 
-
-bueno gracias por todo, espero no hallan problemas, inconvenientes...
-no haber molestado, estoy iniciando aqui (en github), sin experiencia...
-solo queria dar algunos aportes...
-no se si hice algo indebido, mal...
-no se me da el ingles, asi que utilizo un traductor, recomiendo deepl, https://www.deepl.com/translator .
-
-shim-signed
-/usr/lib/shim/fbx64.efi
-/usr/lib/shim/BOOTX64.CSV
 http://www.rodsbooks.com/efi-bootloaders/fallback.html
-/EFI/BOOT/BOOTX64.EFI
+https://blog.hansenpartnership.com/linux-foundation-secure-boot-system-released/
