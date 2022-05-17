@@ -17,7 +17,7 @@ Descargue el script ( tambien puede sumar “autorun.inf”, “logo.ico” y �
 Mueva lo descargado a la "raiz" (primera carpeta..) de la memoria que quiera preparar y ejecute como usuario root o con el comando "sudo" por adelante.
 La memoria en cuestion deberia estar en formato "fat"/"vfat"/"fat32"..
 
-[  si la memoria cumple la condicion y esta vacia podria saltarse todo, descargando un archivo llamado “Slax.zip” y volcando todo el contenido ]
+[  Si la memoria cumple la condicion y esta vacia podria saltarse todo, descargando un archivo llamado “Slax.zip” y volcando todo el contenido ]
 
 < nombre de un usuario> @ < nombre para el equipo, ejemplo debian > : < directorio > $ < $ para cualquier usuario; # para root >
 seba@debian:~/Descargas$     ||    root@debian:/home/ < usuario anterior dicho, en este caso "seba" > /Descargas$
@@ -27,25 +27,25 @@ seba@debian:~/Descargas$     ||    root@debian:/home/ < usuario anterior dicho, 
 
 A partir de la ejecucion de este archivo sucede lo siguiente:
 
-descarga de slax.
-se extrae todos los archivos necesarios.
-traslado de los mencionados.
-creacion y/o edicion de alguno.
-entre tantas cosas...
+Descarga de slax.
+Se extrae todos los archivos necesarios.
+Traslado de los mencionados.
+Creacion y/o edicion de alguno.
+Entre tantas cosas...
 
-con eso ya estaria todo..
+Con eso ya estaria todo..
 
 ---------------------------------
 
 ## Mas avanzado
 
-en caso de no tener el formato expecificado, no arrancaria, ya que la particion (parte, divicion de una memoria ) deberia de tener un formato reconocible para el arranque (*fat*).
-si es este el caso, se nesecita de una particion con fat de esa memoria u otra y debe de tener algun cargador de arranque, con eso se estaria haciendo un arranque en cadena de syslinux..
+En caso de no tener el formato expecificado, no arrancaria, ya que la particion (parte, divicion de una memoria ) deberia de tener un formato reconocible para el arranque (*fat*).
+si es este el caso, se nesecita de una particion con fat de esa memoria u otra y debe de tener algun cargador de arranque (ejemplo: grub / grub2), con eso se estaria haciendo un arranque en cadena de syslinux..
 puede que se tenga que hacer alguna otra edicion..
 
-## fuentes
+## Fuentes
 
-para lo relacionado con arranque, todo sobre “UEFI” & “secure boot” puede en su mayoria sale de la info. encontrada en:
+Para lo relacionado con arranque, todo sobre “UEFI” & “secure boot” puede en su mayoria sale la info. de:
 
 https://www.rodsbooks.com/refind/secureboot.html
 http://www.rodsbooks.com/efi-bootloaders/fallback.html
