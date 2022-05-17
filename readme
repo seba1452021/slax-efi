@@ -40,8 +40,9 @@ con eso ya estaria todo..
 ## Mas avanzado
 
 en caso de no tener el formato expecificado, no arrancaria, ya que la particion (parte, divicion de una memoria ) deberia de tener un formato reconocible para el arranque (*fat*).
-si es caso se nesecita de una particion con fat de esa memoria u otra y debe de tener copiada la carpeta «EFI» , ir a la carpeta interior de esta y remplazar el archivo “syslinux.cfg” por el archivo “syslinux1.cfg” que deberia de ser creado despues de darse este caso al ejecutar el script..
-
+si es este el caso, se nesecita de una particion con fat de esa memoria u otra y debe de tener copiada la carpeta «EFI» , ir a la carpeta interior de esta y remplazar el archivo “syslinux.cfg” por el archivo “syslinux1.cfg” que deberia de ser creado despues de darse este caso al ejecutar el script..
+con esto se estaria haciendo un arranque en cadena de syslinux..
+puede que se tenga que hacer alguna otra edicion..
 
 ## fuentes
 
