@@ -71,14 +71,9 @@ cp /usr/lib/shim/fbx64.efi .
 
 if [ ${TYPE} == "vfat" ]; then
 parted -s ${DEV} set ${NUM} boot on
-else
-cp /usr/lib/syslinux/modules/efi64/chain.c32 .
-echo -e "UI /EFI/${boot}/menu.c32 \nPROMPT 0 \nTIMEOUT 0 \nDEFAILT NEW_CONFIG \nLABEL NEW_CONFIG \nCOM32 /EFI/${boot}/chain.c32 \nAPPEND GUID=${UUID}" | tee -a syslinux1.cfg &>/dev/null
-fi
-
 cd $directory
-
 if [ -d EFI/syslinux/ ]; then efibootmgr --verbose --disk ${DEV} --part ${NUM} --create --label "Syslinux" --loader /EFI/${boot}/BOOTx64.EFI &>/dev/null; fi
+fi
 
 clear
 echo -e "\n listo, ya deberia estaria todo hecho.. \n"
