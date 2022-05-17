@@ -1,0 +1,11 @@
+[AutoRun]
+
+label=slax-64bit-11.3.0
+
+icon=logo.ico
+
+
+[Content] 
+MusicFiles=false 
+PictureFiles=false 
+VideoFiles=false
