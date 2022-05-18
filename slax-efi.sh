@@ -67,11 +67,17 @@ sed -i "s|help.txt|/boot/help.txt|g" syslinux.cfg
 sed -i "s|vesamenu.c32|/EFI/${boot}/vesamenu.c32\nMENU TITLE Boot (EFI)|g" syslinux.cfg
 
 echo "BOOTx64.EFI,${boot},,This is the boot entry for syslinux" | tee -a BOOTX64.CSV &>/dev/null
-cp /usr/lib/shim/fbx64.efi .
 
 if [ ${TYPE} == "vfat" ]; then
 parted -s ${DEV} set ${NUM} boot on
 cd $directory
+
+if [ ! -d EFI/BOOT/ ]; then mkdir EFI/BOOT/; fi
+
+file='' && for x in {fallback,fbx64}.efi; do [ "$file" != "" ]; case $? in 1) if [ -f EFI/BOOT/${x} ]; then file="EFI/BOOT/${x}"; fi ;; *) ;; esac; done
+
+if [ "$file" = "" ]; then cp /usr/lib/shim/fbx64.efi EFI/BOOT/; fi
+
 if [ -d EFI/syslinux/ ]; then efibootmgr --verbose --disk ${DEV} --part ${NUM} --create --label "Syslinux" --loader /EFI/${boot}/BOOTx64.EFI &>/dev/null; fi
 fi
 
