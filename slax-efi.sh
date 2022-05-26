@@ -50,13 +50,17 @@ mv slax/boot/EFI/Boot/!(bootx64.efi) EFI/${boot}/
 mv slax/boot/{help.txt,initrfs.img,vmlinuz,*.png} boot/
 rm readme* slax-64bit-11.3.0.iso md5.txt -r slax/boot '[BOOT]'
 
+boot_file="BOOTx64.EFI"
+
+if [ -d EFI/syslinux/ ]; then boot_file="PreLoader.efi"; fi
+
 cd EFI/${boot}/
 
 clear
 echo -e "\n descargando faltantes.. \n"
 
 wget https://blog.hansenpartnership.com/wp-uploads/2013/{PreLoader,HashTool}.efi &>/dev/null
-mv PreLoader.efi ./BOOTx64.EFI
+mv PreLoader.efi ./${boot_file}
 mv syslinux.efi ./loader.efi
 
 clear
@@ -66,7 +70,7 @@ sed -i "s|/slax||g" syslinux.cfg
 sed -i "s|help.txt|/boot/help.txt|g" syslinux.cfg
 sed -i "s|vesamenu.c32|/EFI/${boot}/vesamenu.c32\nMENU TITLE Boot (EFI)|g" syslinux.cfg
 
-echo "BOOTx64.EFI,${boot},,This is the boot entry for syslinux" | tee -a BOOTX64.CSV &>/dev/null
+echo "${boot_file},${boot},,This is the boot entry for syslinux" | tee -a BOOTX64.CSV &>/dev/null
 
 if [ ${TYPE} == "vfat" ]; then
 parted -s ${DEV} set ${NUM} boot on
@@ -78,7 +82,7 @@ file='' && for x in {fallback,fbx64}.efi; do [ "$file" != "" ]; case $? in 1) if
 
 if [ "$file" = "" ]; then cp /usr/lib/shim/fbx64.efi EFI/BOOT/; fi
 
-if [ -d EFI/syslinux/ ]; then efibootmgr --verbose --disk ${DEV} --part ${NUM} --create --label "Syslinux" --loader /EFI/${boot}/BOOTx64.EFI &>/dev/null; fi
+if [ -d EFI/syslinux/ ]; then efibootmgr --verbose --disk ${DEV} --part ${NUM} --create --label "Syslinux" --loader /EFI/${boot}/${boot_file} &>/dev/null; fi
 fi
 
 clear
