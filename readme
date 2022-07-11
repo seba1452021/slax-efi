@@ -10,7 +10,7 @@ Puede hacer todo de la siguente manera, la cual es sencilla y segura :
 Descargue el script ( tambien puede sumar “autorun.inf”, “logo.ico” y “readme” ).
 
 . script [slax-efi.sh], el programa.
-. readme, el archivo que esta leyendo, el manual <no es necesaria su descarga>
+. readme, el archivo que esta leyendo, el manual <no es necesaria su descarga, por lo que tampoco seria su posesión, puede borrarse de tenerlo>
 . autorun.inf & logo.ico, se encargan de hacer que la memoria tenga una etiqueta [nombre] e icono [imagen],
   deberian estar juntos estos dos archivos <no es necesaria la descarga de estos>
    
