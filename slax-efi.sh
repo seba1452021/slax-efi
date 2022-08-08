@@ -27,14 +27,22 @@ apt install -y -f parted p7zip{,-full} wget efibootmgr mtools &>/dev/null
 clear
 echo -e "\n descargando y comprobando archivos.. \n"
 
+n=10 existe=no
+until [ $existe == si ];
+do
+pagina="http://ftp.sh.cvut.cz/slax/Slax-${n}.x/"
+resultado=$(curl -s -I -L ${pagina}md5.txt | head -n 1 | awk '{print $2}')
+case $resultado in 404) ((n++)) ;; *) existe=si ;; esac
+done
+
 i=1
 until [ $i -eq 0 ]
 do
-test -f md5.txt || wget https://ftp.sh.cvut.cz/slax/Slax-11.x/md5.txt &>/dev/null
+test -f md5.txt || wget ${pagina}md5.txt &>/dev/null
 grep 64bit md5.txt | tail -n 1 | cat > md5.txt.1 && mv md5.txt.1 ./md5.txt
 imagen=$(cut -d " " -f 3 md5.txt)
 test -f ${imagen} || rm ${imagen} &>/dev/null
-test -f ${imagen} || wget https://ftp.sh.cvut.cz/slax/Slax-11.x/${imagen} &>/dev/null
+test -f ${imagen} || wget ${pagina}${imagen} &>/dev/null
 md5sum -c md5.txt &>/dev/null
 i=$?
 done
