@@ -95,7 +95,8 @@ file='' && for x in {fallback,fbx64}.efi; do [ "$file" != "" ]; case $? in 1) if
 
 if [ "$file" = "" ]; then file=/usr/lib/shim/fbx64.efi; fi
 if [ ! -e $file ]; then apt-get download shim-signed &>/dev/null && d=`mktemp -d` && dpkg-deb --extract shim-signed*.deb $d &>/dev/null; fi
-cp ${d}/usr/lib/shim/fbx64.efi EFI/BOOT/
+if [ "$file" = "" ]; then file=${d}/usr/lib/shim/fbx64.efi; fi
+cp ${file} EFI/BOOT/
 
 if [ -d EFI/syslinux/ ]; then efibootmgr --verbose --disk ${DEV} --part ${NUM} --create --label "Syslinux" --loader /EFI/${boot}/${boot_file} &>/dev/null; fi
 
