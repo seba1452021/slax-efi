@@ -81,7 +81,7 @@ i=$?
 rm md5.txt
 done
 
-mv PreLoader.efi ./${boot_file}
+mv PreLoader.efi ./${boot_file} &>/dev/null
 mv syslinux.efi ./loader.efi
 
 echo -e "\n editando archivos.. \n"
