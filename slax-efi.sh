@@ -109,7 +109,7 @@ cp ${file} EFI/BOOT/ &>/dev/null
 if [ -d EFI/syslinux/ ]; then efibootmgr --verbose --disk ${DEV} --part ${NUM} --create --label "Syslinux" --loader /EFI/${boot}/${boot_file} &>/dev/null; fi
 
 bootnum=$(efibootmgr | grep Syslinux | sed -e "s/Syslinux//g" -e 's|Boot||g')
-active=$(echo $bootnum | grep '*' &>/dev/null && echo $?) 
+active=$(echo $bootnum | grep -q '*' && echo $?) 
 case $active in 1) efibootmgr --bootnum $bootnum --active ;; esac
 
 fi
